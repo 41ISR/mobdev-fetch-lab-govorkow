@@ -1,10 +1,10 @@
 import './Loader.css';
 
-function Loader({ label = 'Загрузка...' }) {
+function Loader({ label = 'Загружаем данные…' }) {
   return (
-    <div className="loader">
-      <div className="loader__spinner" />
-      <p className="loader__label">{label}</p>
+    <div className="loader" role="status" aria-live="polite">
+      <span className="loader__reel" aria-hidden="true" />
+      <span className="loader__label">{label}</span>
     </div>
   );
 }

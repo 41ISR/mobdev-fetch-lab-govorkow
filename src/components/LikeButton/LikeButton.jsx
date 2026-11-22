@@ -1,19 +1,47 @@
+import { useState } from 'react';
 import './LikeButton.css';
 
-function LikeButton() {
+function LikeButton({ imdbID, label = 'фильм' }) {
+  const storageKey = imdbID ? `movie-favorite:${imdbID}` : null;
+
+  const [liked, setLiked] = useState(() => {
+    if (!storageKey) return false;
+    try {
+      return localStorage.getItem(storageKey) === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  function handleClick() {
+    const next = !liked;
+    setLiked(next);
+
+    if (storageKey) {
+      try {
+        localStorage.setItem(storageKey, String(next));
+      } catch {
+        // Хранилище недоступно — просто не сохраняем состояние
+      }
+    }
+  }
+
   return (
     <button
       type="button"
-      className="like-button like-button--active"
-      aria-pressed="true"
-      aria-label="Убрать из избранного"
+      className={liked ? 'like-button like-button--active' : 'like-button'}
+      onClick={handleClick}
+      aria-pressed={liked}
+      aria-label={
+        liked ? `Убрать ${label} из избранного` : `Добавить ${label} в избранное`
+      }
     >
       <svg
         className="like-button__icon"
         width="18"
         height="18"
         viewBox="0 0 24 24"
-        fill="currentColor"
+        fill={liked ? 'currentColor' : 'none'}
         stroke="currentColor"
         strokeWidth="1.8"
       >

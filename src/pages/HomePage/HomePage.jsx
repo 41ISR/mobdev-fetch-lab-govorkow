@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import SearchBar from '../../components/SearchBar/SearchBar';
-import MovieList from '../../components/MovieList/MovieList';
-import Loader from '../../components/Loader/Loader';
 import ErrorMessage from '../../components/ErrorMessage/ErrorMessage';
+import Loader from '../../components/Loader/Loader';
+import MovieList from '../../components/MovieList/MovieList';
+import SearchBar from '../../components/SearchBar/SearchBar';
 import './HomePage.css';
 
 function HomePage() {
@@ -27,11 +27,9 @@ function HomePage() {
   }
 
   useEffect(() => {
-    if (!queryParam) {
-      setMovies([]);
-      setError(null);
-      return;
-    }
+    if (!queryParam) return;
+
+    let cancelled = false;
 
     async function loadMovies() {
       setError(null);
@@ -44,22 +42,33 @@ function HomePage() {
         const response = await fetch(url);
         const data = await response.json();
 
+        if (cancelled) return;
+
         if (data.Response === 'False') {
           setError(data.Error);
           setMovies([]);
         } else {
           setMovies(data.Search);
         }
-      } catch (err) {
+      } catch {
+        if (cancelled) return;
         setError('Не удалось связаться с сервером');
         setMovies([]);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     }
 
     loadMovies();
+
+    return () => {
+      cancelled = true;
+    };
   }, [queryParam]);
+
+  const visibleMovies = queryParam ? movies : [];
+  const visibleError = queryParam ? error : null;
+  const visibleLoading = queryParam && isLoading;
 
   return (
     <main className="home-page">
@@ -73,12 +82,12 @@ function HomePage() {
         <section className="home-page__section">
           <h2 className="home-page__section-title">Результат поиска</h2>
 
-          {isLoading ? (
-            <Loader />
-          ) : error ? (
-            <ErrorMessage message={error} />
+          {visibleLoading ? (
+            <Loader label="Ищем фильмы..." />
+          ) : visibleError ? (
+            <ErrorMessage message={visibleError} />
           ) : (
-            <MovieList movies={movies} />
+            <MovieList movies={visibleMovies} />
           )}
         </section>
       </div>

@@ -10,7 +10,11 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.vite
 *.local
+
+# Переменные окружения с ключами API
+.env
 
 # Editor directories and files
 .vscode/*

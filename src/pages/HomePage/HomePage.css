@@ -10,8 +10,3 @@
   font-size: 22px;
   margin-bottom: var(--space-3);
 }
-
-.home-page__section--demo {
-  padding-top: var(--space-4);
-  border-top: 1px dashed var(--color-border);
-}
