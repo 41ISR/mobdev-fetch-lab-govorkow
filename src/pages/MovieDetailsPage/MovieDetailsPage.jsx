@@ -1,71 +1,71 @@
-import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import ErrorMessage from '../../components/ErrorMessage/ErrorMessage';
-import Loader from '../../components/Loader/Loader';
-import MovieDetails from '../../components/MovieDetails/MovieDetails';
-import './MovieDetailsPage.css';
+import { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import ErrorMessage from '../../components/ErrorMessage/ErrorMessage'
+import Loader from '../../components/Loader/Loader'
+import MovieDetails from '../../components/MovieDetails/MovieDetails'
+import './MovieDetailsPage.css'
 
-function MovieDetailsPage() {
-  const { imdbID } = useParams();
+const MovieDetailsPage = () => {
+    const { imdbID } = useParams()
 
-  const [movie, setMovie] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+    const [movie, setMovie] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState(null)
 
-  useEffect(() => {
-    let cancelled = false;
+    useEffect(() => {
+        let cancelled = false
 
-    async function loadMovie() {
-      setError(null);
-      setMovie(null);
-      setIsLoading(true);
+        const loadMovie = async () => {
+            setError(null)
+            setMovie(null)
+            setIsLoading(true)
 
-      try {
-        const apiKey = import.meta.env.VITE_OMDB_API_KEY;
-        const url = `https://www.omdbapi.com/?apikey=${apiKey}&i=${encodeURIComponent(imdbID)}&plot=full`;
+            try {
+                const apiKey = import.meta.env.VITE_OMDB_API_KEY
+                const url = `https://www.omdbapi.com/?apikey=${apiKey}&i=${encodeURIComponent(imdbID)}&plot=full`
 
-        const response = await fetch(url);
-        const data = await response.json();
+                const response = await fetch(url)
+                const data = await response.json()
 
-        if (cancelled) return;
+                if (cancelled) return
 
-        if (data.Response === 'False') {
-          setError(data.Error);
-        } else {
-          setMovie(data);
+                if (data.Response === 'False') {
+                    setError(data.Error)
+                } else {
+                    setMovie(data)
+                }
+            } catch {
+                if (cancelled) return
+                setError('Не удалось связаться с сервером')
+            } finally {
+                if (!cancelled) setIsLoading(false)
+            }
         }
-      } catch {
-        if (cancelled) return;
-        setError('Не удалось связаться с сервером');
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
-    }
 
-    loadMovie();
+        loadMovie()
 
-    return () => {
-      cancelled = true;
-    };
-  }, [imdbID]);
+        return () => {
+            cancelled = true
+        }
+    }, [imdbID])
 
-  return (
-    <main className="movie-details-page">
-      <div className="container">
-        <Link to="/" className="movie-details__back">
-          ← Ко всем фильмам
-        </Link>
+    return (
+        <main className="movie-details-page">
+            <div className="container">
+                <Link to="/" className="movie-details__back">
+                    ← Ко всем фильмам
+                </Link>
 
-        {isLoading ? (
-          <Loader label="Загружаем фильм..." />
-        ) : error ? (
-          <ErrorMessage message={error} />
-        ) : movie ? (
-          <MovieDetails movie={movie} />
-        ) : null}
-      </div>
-    </main>
-  );
+                {isLoading ? (
+                    <Loader label="Загружаем фильм..." />
+                ) : error ? (
+                    <ErrorMessage message={error} />
+                ) : movie ? (
+                    <MovieDetails movie={movie} />
+                ) : null}
+            </div>
+        </main>
+    )
 }
 
-export default MovieDetailsPage;
+export default MovieDetailsPage
